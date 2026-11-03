@@ -14,10 +14,15 @@ end
 -- step count must be calibrated in-game at different frame rates.
 local ACTIVE_FRAME_BIAS = 1
 
--- Safety cap: no pulse may remain active longer than this, even if the driver
--- frame errors or stops receiving OnUpdate.
+-- Safety cap: no frame pulse may remain active longer than this, even if the
+-- driver frame errors or stops receiving OnUpdate.
 local MAX_ACTIVE_SECONDS = 3
 local MAX_FRAMES = 60
+
+-- Hold-to-move has no frame count, so it is released by the key-up event. This
+-- longer cap only stops a hold whose key-up never arrives (for example, after a
+-- focus change). Holding a key longer than this stops the movement.
+local MAX_HOLD_SECONDS = 10
 
 Pulse.activeType = nil
 Pulse.framesLeft = 0
@@ -25,6 +30,7 @@ Pulse.startedAt = 0
 Pulse.token = 0
 Pulse.driver = nil
 Pulse.failurePrinted = false
+Pulse.holding = false
 
 local function setIncrementActive(incrementType, active)
     if type(C_HousingExpertMode) ~= "table" then
@@ -92,8 +98,16 @@ function Pulse:OnUpdate()
         return
     end
 
-    if (GetTime() - self.startedAt) >= MAX_ACTIVE_SECONDS then
+    local limit = self.holding and MAX_HOLD_SECONDS or MAX_ACTIVE_SECONDS
+    if (GetTime() - self.startedAt) >= limit then
         self:Stop(incrementType)
+        return
+    end
+
+    -- A hold runs until its key-up event (or the cap above) stops it. Count the
+    -- frames it has been held, so a short tap can be finished at its step count.
+    if self.holding then
+        self.heldFrames = (self.heldFrames or 0) + 1
         return
     end
 
@@ -103,27 +117,10 @@ function Pulse:OnUpdate()
     end
 end
 
-function Pulse:Start(incrementType, frames)
-    if incrementType == nil then
-        ns:Print(L["Cannot pulse: unknown increment type."])
-        return false
-    end
-
-    local canPulse, reason = ns:CanPulse()
-    if not canPulse then
-        self:StopAll()
-        ns:Print(reason)
-        return false
-    end
-
-    frames = tonumber(frames) or (ns.db and ns.db.steps) or 1
-    frames = math.floor(frames)
-    if frames < 1 then
-        frames = 1
-    elseif frames > MAX_FRAMES then
-        frames = MAX_FRAMES
-    end
-
+-- Shared activation path for frame pulses and holds. The caller has already
+-- checked nudging and the editor state. opts.frames is set for a frame pulse;
+-- opts.holding is set for a hold.
+function Pulse:Begin(incrementType, limitSeconds, opts)
     -- Only one increment type may be active at a time. Multi-axis or diagonal
     -- movement is a future feature; for now, starting one pulse clears the rest.
     self:StopAll()
@@ -150,14 +147,16 @@ function Pulse:Start(incrementType, frames)
     self.token = self.token + 1
     local token = self.token
     self.activeType = incrementType
-    self.framesLeft = frames + ACTIVE_FRAME_BIAS
+    self.holding = opts.holding and true or false
+    self.heldFrames = 0
+    self.framesLeft = opts.frames or 0
     self.startedAt = GetTime()
 
     -- Schedule the independent backstop before showing the driver, so a driver
     -- error cannot leave the increment active. The token check makes stale
     -- timers harmless after any stop, restart, or panic StopAll.
     local timerOk = pcall(function()
-        C_Timer.After(MAX_ACTIVE_SECONDS, function()
+        C_Timer.After(limitSeconds, function()
             if Pulse.token == token and Pulse.activeType == incrementType then
                 Pulse:Stop(incrementType)
             end
@@ -178,6 +177,41 @@ function Pulse:Start(incrementType, frames)
         return false
     end
 
+    return true
+end
+
+function Pulse:Start(incrementType, frames)
+    if incrementType == nil then
+        ns:Print(L["Cannot pulse: unknown increment type."])
+        return false
+    end
+
+    -- Nudging turned off with /bdt off: refuse silently so wheel and key
+    -- presses do nothing and do not spam chat.
+    if not ns:IsNudgingEnabled() then
+        self:StopAll()
+        return false
+    end
+
+    local canPulse, reason = ns:CanPulse()
+    if not canPulse then
+        self:StopAll()
+        ns:Print(reason)
+        return false
+    end
+
+    frames = tonumber(frames) or (ns.db and ns.db.steps) or 1
+    frames = math.floor(frames)
+    if frames < 1 then
+        frames = 1
+    elseif frames > MAX_FRAMES then
+        frames = MAX_FRAMES
+    end
+
+    if not self:Begin(incrementType, MAX_ACTIVE_SECONDS, { frames = frames + ACTIVE_FRAME_BIAS, holding = false }) then
+        return false
+    end
+
     ns:Debug(string.format(
         "pulse start: type=%s frames=%d bias=%d",
         ns:GetIncrementName(incrementType),
@@ -185,6 +219,61 @@ function Pulse:Start(incrementType, frames)
         ACTIVE_FRAME_BIAS
     ))
 
+    return true
+end
+
+-- Hold-to-move: start continuous movement on key-down. It continues until
+-- HoldStop is called for the same increment type, or until MAX_HOLD_SECONDS.
+function Pulse:HoldStart(incrementType)
+    if incrementType == nil then
+        return false
+    end
+
+    if not ns:IsNudgingEnabled() then
+        self:StopAll()
+        return false
+    end
+
+    -- Key auto-repeat must not restart a hold that is already running.
+    if self.holding and self.activeType == incrementType then
+        return true
+    end
+
+    local canPulse, reason = ns:CanPulse()
+    if not canPulse then
+        self:StopAll()
+        ns:Print(reason)
+        return false
+    end
+
+    if not self:Begin(incrementType, MAX_HOLD_SECONDS, { holding = true }) then
+        return false
+    end
+
+    ns:Debug("hold start: type=" .. ns:GetIncrementName(incrementType))
+    return true
+end
+
+-- Hold-to-move: stop on key-up. Only acts on a hold of the same type, so a
+-- late key-up cannot cut off a different movement that started after it.
+-- minFrames is the step count for this direction. A tap released sooner keeps
+-- the increment active until that many frames have passed, the same as a frame
+-- pulse, so a quick press still moves the decor.
+function Pulse:HoldStop(incrementType, minFrames)
+    if incrementType == nil then
+        return false
+    end
+    if not (self.holding and self.activeType == incrementType) then
+        return false
+    end
+
+    local remaining = (tonumber(minFrames) or 0) - (self.heldFrames or 0)
+    if remaining <= 0 then
+        return self:Stop(incrementType)
+    end
+
+    self.holding = false
+    self.framesLeft = remaining + ACTIVE_FRAME_BIAS
     return true
 end
 
@@ -197,6 +286,7 @@ function Pulse:Stop(incrementType)
     if wasActive then
         self.activeType = nil
         self.framesLeft = 0
+        self.holding = false
         self.token = self.token + 1
         self:StopDriver()
     end
@@ -215,6 +305,7 @@ function Pulse:StopAll()
 
     self.activeType = nil
     self.framesLeft = 0
+    self.holding = false
     self.token = self.token + 1
     self:StopDriver()
 

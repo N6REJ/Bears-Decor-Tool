@@ -2,8 +2,21 @@
 
 ## Unreleased
 
+- Added hold-to-move for the Expert Decor arrow and Page keys. A tap moves one step, as `/bdt pulse` does. Holding past 0.3 seconds keeps the decor moving until the key is released, capped at 10 seconds. Not verified in game.
+- Added a minimap button that opens and closes the window. Drag it to move it around the minimap. Not verified in game.
+- Expert Decor arrow and Page keys are now bound with `SetOverrideBindingClick` to addon buttons, which report key-down and key-up.
+- Added `/bdt resetsnap`. It restores `housingExpertGizmos_Rotation_SnapDegrees` and `housingExpertGizmos_SnapOnHold` to the defaults (`SnapOnHold` = `1`, the default documented by Advanced Decoration Tools). It is meant to reverse the SHIFT snap left by earlier builds. Runs only when typed. Not verified in game.
+- The only slash command is now `/bdt`. The aliases `/hn`, `/Decortool`, `/bearsDecortool`, and `/housingnudge` are removed.
 - Added per-direction step fields (left/right, up/down, wheel, other) to the panel.
 - Nudge keybinds and buttons now use the matching per-direction step value.
+- Renamed the "Mouse (wheel)" step slider to "Rotation" with a 1-60 range.
+- Left/Right, Up/Down, Forward/Back, and Rotate/Scale step sliders (and `/bdt steps`) now max at 10.
+- Added `/bdt on` and `/bdt off` to turn nudging on or off. The setting is saved, `/bdt status` shows it, and `/bdt off` stops pulses and removes the Expert Decor arrow-key overrides.
+- Increased the vertical spacing between step sliders in the window.
+- Renamed the step sliders to "(frames per press)" so the labels say what the value does. Each value is a frame count per press, not degrees.
+- Temporarily removed the drag snap slider. It had no effect in game. Its CVar writes are removed, and its saved value is no longer used.
+- Rotate Left and Rotate Right arrow nudges use the Rotate/Scale step (frames) again. The saved key `stepWheel` is renamed `stepRotation`.
+- `/bdt pulse <type>` without a frame count now uses that type's step, the same as the key press.
 
 ## 0.1.0
 

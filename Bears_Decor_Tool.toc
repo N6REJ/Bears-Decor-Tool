@@ -1,5 +1,5 @@
 ## Interface: 120105
-## Title: Bears Decor Tool
+## Title: Bears_Decor_Tool
 ## Notes: Micro-nudge housing decor with the Expert Decor precision API.
 ## Author: Bear (N6REJ)
 ## Version: 0.1.0
@@ -24,4 +24,6 @@ Locales\itIT.lua
 
 Core.lua
 Pulse.lua
+Hold.lua
+Minimap.lua
 UI.lua

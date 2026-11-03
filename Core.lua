@@ -19,8 +19,9 @@ local DB_DEFAULTS = {
     stepLeftRight = 5,
     stepUpDown = 5,
     stepForwardBack = 5,
-    stepWheel = 5,
     debug = false,
+    nudgingEnabled = true,
+    minimapAngle = 220,
     bindingsInitialized = false,
     frame = {
         point = "CENTER",
@@ -104,26 +105,32 @@ function ns:SanitizeDB()
         db.version = DB_DEFAULTS.version
     end
 
-    local function sanitizeStep(value, fallback)
+    local function sanitizeStep(value, fallback, maxVal)
+        maxVal = maxVal or 10
         value = sanitizeNumber(value, fallback)
         value = math.floor(value)
         if value < 1 then
             value = 1
-        elseif value > 5 then
-            value = 5
+        elseif value > maxVal then
+            value = maxVal
         end
         return value
     end
 
-    db.steps = sanitizeStep(db.steps, DB_DEFAULTS.steps)
-    db.stepLeftRight = sanitizeStep(db.stepLeftRight, DB_DEFAULTS.stepLeftRight)
-    db.stepUpDown = sanitizeStep(db.stepUpDown, DB_DEFAULTS.stepUpDown)
-    db.stepForwardBack = sanitizeStep(db.stepForwardBack, DB_DEFAULTS.stepForwardBack)
-    db.stepWheel = sanitizeStep(db.stepWheel, DB_DEFAULTS.stepWheel)
+    db.steps = sanitizeStep(db.steps, DB_DEFAULTS.steps, 10)
+    db.stepLeftRight = sanitizeStep(db.stepLeftRight, DB_DEFAULTS.stepLeftRight, 10)
+    db.stepUpDown = sanitizeStep(db.stepUpDown, DB_DEFAULTS.stepUpDown, 10)
+    db.stepForwardBack = sanitizeStep(db.stepForwardBack, DB_DEFAULTS.stepForwardBack, 10)
 
     if type(db.debug) ~= "boolean" then
         db.debug = DB_DEFAULTS.debug
     end
+
+    if type(db.nudgingEnabled) ~= "boolean" then
+        db.nudgingEnabled = DB_DEFAULTS.nudgingEnabled
+    end
+
+    db.minimapAngle = sanitizeNumber(db.minimapAngle, DB_DEFAULTS.minimapAngle) % 360
 
     if type(db.frame) ~= "table" then
         db.frame = {}
@@ -385,10 +392,70 @@ function ns:CanPulse()
     return true
 end
 
+-- Drag snap CVars that earlier builds wrote. Restoring them is done only by the
+-- explicit /bdt resetsnap command.
+local ROTATION_SNAP_CVAR = "housingExpertGizmos_Rotation_SnapDegrees"
+local SNAP_ON_HOLD_CVAR = "housingExpertGizmos_SnapOnHold"
+-- 1 = no snap unless SHIFT is held (Blizzard default, per ADT's "Default Snap
+-- Enabled" tooltip). 0 = snap by default and SHIFT moves freely.
+local SNAP_ON_HOLD_DEFAULT = 1
+
+function ns:ResetDragSnapCVars()
+    if not (C_CVar and C_CVar.SetCVar and C_CVar.GetCVar) then
+        self:Print("Cannot reset drag snap: C_CVar is unavailable.")
+        return false
+    end
+
+    local degreesDefault = C_CVar.GetCVarDefault and C_CVar.GetCVarDefault(ROTATION_SNAP_CVAR)
+    local okHold, holdSet = pcall(C_CVar.SetCVar, SNAP_ON_HOLD_CVAR, tostring(SNAP_ON_HOLD_DEFAULT))
+    local okDeg, degSet = false, false
+    if degreesDefault ~= nil then
+        okDeg, degSet = pcall(C_CVar.SetCVar, ROTATION_SNAP_CVAR, tostring(degreesDefault))
+    end
+
+    local holdOk = okHold and holdSet == true
+    local degOk = okDeg and degSet == true
+    self:Debug(string.format("reset snapOnHold=%s: %s; snapDegrees=%s: %s",
+        tostring(SNAP_ON_HOLD_DEFAULT), tostring(holdOk),
+        tostring(degreesDefault), tostring(degOk)))
+
+    -- Print what the game now reports, so a mismatch is visible.
+    self:Print(string.format("SnapOnHold = %s, Rotation snap degrees = %s",
+        tostring(C_CVar.GetCVar(SNAP_ON_HOLD_CVAR)), tostring(C_CVar.GetCVar(ROTATION_SNAP_CVAR))))
+    if holdOk and degOk then
+        self:Print("Drag snap settings restored.")
+    else
+        self:Print("Could not restore every drag snap setting. Check /bdt debug output.")
+    end
+    return holdOk and degOk
+end
+
+function ns:IsNudgingEnabled()
+    return not self.db or self.db.nudgingEnabled ~= false
+end
+
+
+function ns:SetNudgingEnabled(enabled)
+    if not self.db then
+        return
+    end
+    self.db.nudgingEnabled = enabled and true or false
+    if not self.db.nudgingEnabled then
+        self:StopPulses("nudging off")
+    end
+    self:UpdateOverrideBindings()
+    self:Print(self.db.nudgingEnabled and L["Nudging on."] or L["Nudging off."])
+    self:RefreshUI()
+end
+
 function ns:GetStatusText()
     local available = self:IsApiAvailable()
     if not available then
         return L["API unavailable"]
+    end
+
+    if not self:IsNudgingEnabled() then
+        return L["Nudging is off. Use /bdt on."]
     end
 
     if not self:IsHouseEditorActive() then
@@ -469,6 +536,8 @@ function ns:PrintStatus()
         self:Print(L["House editor: inactive"])
     end
 
+    self:Print(string.format(L["Nudging: %s"], self:IsNudgingEnabled() and "on" or "off"))
+
     if self:IsExpertDecorMode() then
         self:Print(L["Expert Decor: yes"])
     else
@@ -502,7 +571,10 @@ local HELP_LINES = {
     "/bdt pulse <type> [n] - pulse an increment type for n frames (default: steps)",
     "/bdt stop - stop every increment type",
     "/bdt status - print API, editor, selection, submode, steps, and active pulses",
-    "/bdt steps <n> - set the default frame count (clamped to 1..60)",
+    "/bdt on - turn nudging on",
+    "/bdt off - turn nudging off and stop pulses",
+    "/bdt resetsnap - restore the game's default drag snap settings",
+    "/bdt steps <n> - set the default frame count (clamped to 1..10)",
     "/bdt commit - commit the selected decor movement",
     "/bdt debug - toggle debug logging",
     "/bdt reset - reset SavedVariables to defaults",
@@ -536,7 +608,7 @@ function ns:HandlePulseCommand(rest)
         return
     end
 
-    local frames = self.db.steps
+    local frames = self:GetStepValue(typeName)
     if framesText ~= "" then
         frames = tonumber(framesText)
         if not frames then
@@ -614,15 +686,15 @@ function ns:HandleSlash(message)
     elseif command == "steps" then
         local value = tonumber(rest)
         if not value then
-            self:Print(L["Usage: /bdt steps <1-60>"])
+            self:Print(L["Usage: /bdt steps <1-10>"])
             return
         end
 
         value = math.floor(value)
         if value < 1 then
             value = 1
-        elseif value > 5 then
-            value = 5
+        elseif value > 10 then
+            value = 10
         end
         self.db.steps = value
         self:Print(string.format(L["Default pulse frames set to %s."], tostring(value)))
@@ -630,6 +702,12 @@ function ns:HandleSlash(message)
             ns.UI:UpdateSteps()
         end
         self:RefreshUI()
+    elseif command == "resetsnap" then
+        self:ResetDragSnapCVars()
+    elseif command == "on" then
+        self:SetNudgingEnabled(true)
+    elseif command == "off" then
+        self:SetNudgingEnabled(false)
     elseif command == "commit" then
         self:HandleCommitCommand()
     elseif command == "debug" then
@@ -687,21 +765,30 @@ local function resolveNudgeKey(key)
     return key
 end
 
+-- Resolves a nudge key (left, forward, ...) to the increment type for the
+-- current submode. Returns nil when the submode has no matching increment.
+function ns:GetNudgeIncrementType(key)
+    local resolved = resolveNudgeKey(key)
+    return self:GetIncrementType(resolved), self:GetStepValue(resolved)
+end
+
+-- Frame pulse for one key press, using the step value for that direction.
 local function nudgeByKey(key)
     if not ns or not ns.Pulse then
         return
     end
-    key = resolveNudgeKey(key)
-    local incrementType = ns:GetIncrementType(key)
+    local resolved = resolveNudgeKey(key)
+    local incrementType = ns:GetIncrementType(resolved)
     if not incrementType then
         return
     end
-    local steps = ns:GetStepValue(key)
+    local steps = ns:GetStepValue(resolved)
     ns.Pulse:Start(incrementType, steps)
     if ns.UI and ns.UI.UpdateStatus then
         ns.UI:UpdateStatus()
     end
 end
+ns.NudgeByKey = nudgeByKey
 
 HN.NudgeLeft = function()
     nudgeByKey("left")
@@ -739,22 +826,33 @@ local eventFrame = CreateFrame("Frame")
 -- addon's step values without permanently changing the player's keybindings.
 local overrideFrame = CreateFrame("Frame", "BearsDecorToolOverrideFrame")
 
+-- Arrow and Page keys route to the hold-aware buttons in Hold.lua. Those buttons
+-- report key-down and key-up, which hold-to-move needs.
+local OVERRIDE_KEYS = {
+    { "LEFT", "left" },
+    { "RIGHT", "right" },
+    { "UP", "forward" },
+    { "DOWN", "back" },
+    { "PAGEUP", "up" },
+    { "PAGEDOWN", "down" },
+}
+
 function ns:UpdateOverrideBindings()
-    if type(SetOverrideBinding) ~= "function" or type(ClearOverrideBindings) ~= "function" then
+    if type(ClearOverrideBindings) ~= "function" then
         return
     end
 
-    if self:IsExpertDecorMode() then
-        local ok1 = pcall(SetOverrideBinding, overrideFrame, true, "LEFT", "BEARSDecorTOOL_NUDGE_LEFT")
-        local ok2 = pcall(SetOverrideBinding, overrideFrame, true, "RIGHT", "BEARSDecorTOOL_NUDGE_RIGHT")
-        local ok3 = pcall(SetOverrideBinding, overrideFrame, true, "UP", "BEARSDecorTOOL_NUDGE_FORWARD")
-        local ok4 = pcall(SetOverrideBinding, overrideFrame, true, "DOWN", "BEARSDecorTOOL_NUDGE_BACK")
-        pcall(SetOverrideBinding, overrideFrame, true, "LEFT", "BEARSDecorTOOL_NUDGE_LEFT")
-        pcall(SetOverrideBinding, overrideFrame, true, "RIGHT", "BEARSDecorTOOL_NUDGE_RIGHT")
-        pcall(SetOverrideBinding, overrideFrame, true, "UP", "BEARSDecorTOOL_NUDGE_FORWARD")
-        pcall(SetOverrideBinding, overrideFrame, true, "DOWN", "BEARSDecorTOOL_NUDGE_BACK")
-        pcall(SetOverrideBinding, overrideFrame, true, "PAGEUP", "BEARSDecorTOOL_NUDGE_UP")
-        pcall(SetOverrideBinding, overrideFrame, true, "PAGEDOWN", "BEARSDecorTOOL_NUDGE_DOWN")
+    if self:IsExpertDecorMode() and self:IsNudgingEnabled() and ns.Hold then
+        if type(SetOverrideBindingClick) ~= "function" then
+            return
+        end
+        ClearOverrideBindings(overrideFrame)
+        for _, entry in ipairs(OVERRIDE_KEYS) do
+            local buttonName = ns.Hold.GetButtonName(entry[2])
+            if buttonName then
+                pcall(SetOverrideBindingClick, overrideFrame, true, entry[1], buttonName, "LeftButton")
+            end
+        end
     else
         pcall(ClearOverrideBindings, overrideFrame)
     end
@@ -781,6 +879,9 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
             ns:InitDB()
             ns:CheckApiOnce()
             ns:UpdateOverrideBindings()
+            if ns.Minimap then
+                ns.Minimap:Create()
+            end
 
             -- Do not modify the player's keybindings. Step values are applied to
             -- the addon's optional bindings only when the user assigns them.
@@ -839,10 +940,6 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
 end)
 
 SLASH_BDT1 = "/bdt"
-SLASH_BDT2 = "/Decortool"
-SLASH_BDT3 = "/bearsDecortool"
-SLASH_BDT4 = "/hn"
-SLASH_BDT5 = "/housingnudge"
 SlashCmdList["BDT"] = function(message)
     ns:HandleSlash(message)
 end

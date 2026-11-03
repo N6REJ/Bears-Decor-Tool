@@ -21,6 +21,23 @@ C_HouseEditor.ActivateHouseEditorMode(editMode)
 is not called by the skeleton. The addon never switches editor modes for the
 player.
 
+### Drag snap CVars
+
+Earlier builds wrote `housingExpertGizmos_Rotation_SnapDegrees` and
+`housingExpertGizmos_SnapOnHold` to set mouse-drag snapping. The feature is
+removed, and nothing writes these CVars on load or on any slider change.
+
+`/bdt resetsnap` is the only code path that writes them, and only when the
+player types the command. It sets `SnapOnHold` to `1` (no snap unless SHIFT is
+held, the Blizzard default per ADT's tooltip). It sets the snap degrees to
+`C_CVar.GetCVarDefault` for that CVar. Advanced Decoration Tools uses the same
+two CVars. Earlier, `GetCVarDefault` was used for both; that did not restore the
+SHIFT behavior in game.
+
+Observed in game: with `SnapOnHold` set to `0`, a plain drag snaps and SHIFT
+moves freely. Not yet verified that `/bdt resetsnap` restores the default in
+game. The command prints the current values after it runs.
+
 ### Return values
 
 - `GetPrecisionSubmode()` returns `Enum.HousingPrecisionSubmode?`.
@@ -28,6 +45,18 @@ player.
 - `IsHouseEditorActive()` returns a boolean.
 - `CommitDecorMovement()` has no documented return value.
 - `ActivateHouseEditorMode(editMode)` returns `Enum.HousingResult`.
+
+### Override key clicks
+
+The Expert Decor arrow and Page keys are bound with
+`SetOverrideBindingClick(owner, true, key, buttonName, "LeftButton")`. Each
+addon button is registered with `RegisterForClicks("AnyDown", "AnyUp")`, and its
+`OnClick(self, button, down)` handler gets `down` as true on press and false on
+release. Hold-to-move uses that value.
+
+Observed in game: `down` is true on press and false on release. The wiki page for
+`SetOverrideBindingClick` does not document the `down` argument, so this rests on
+the in-game result.
 
 ## Enums
 
@@ -130,7 +159,7 @@ selected and its target type, not its coordinates.
   Multi-axis and diagonal movement are future features.
 - `StopAll` sets every known increment type to `false`, even if the internal
   state says it is inactive. This is the panic path used on UI hide, editor or
-  selection changes, world transitions, logout, and `/hn stop`.
+  selection changes, world transitions, logout, and `/bdt stop`.
 - API calls are wrapped in `pcall`; only the first failure in a pulse is
   printed.
 

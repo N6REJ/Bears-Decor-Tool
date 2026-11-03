@@ -60,17 +60,23 @@ local function createSlider(parent, width, minVal, maxVal, point, x, y)
     return slider
 end
 
-local function bindStepSlider(slider, dbKey, valueText)
+local function bindStepSlider(slider, dbKey, valueText, maxVal, onChange)
     slider:SetScript("OnValueChanged", function(self, value)
         value = math.floor((tonumber(value) or 1) + 0.5)
         if value < 1 then
             value = 1
-        elseif value > 5 then
-            value = 5
+        elseif value > maxVal then
+            value = maxVal
         end
         if ns.db then
+            -- Only a real change fires onChange. UpdateSteps also calls SetValue
+            -- when the window opens, and that must not rewrite game settings.
+            local changed = ns.db[dbKey] ~= value
             ns.db[dbKey] = value
             ns:SanitizeDB()
+            if changed and onChange then
+                onChange(value)
+            end
         end
         if valueText then
             valueText:SetText(tostring(value))
@@ -124,7 +130,7 @@ function UI:Create()
 
     local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", frame, "TOP", 0, -12)
-    title:SetText(L["Bears Decor Tool"])
+    title:SetText(L["Bears_Decor_Tool"])
 
     local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
     close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -2)
@@ -143,9 +149,9 @@ function UI:Create()
     -- corresponding nudge direction; the value is persisted in SavedVariables and
     -- applied to the already-assigned keybinds and mouse wheel movement.
     local fieldStartY = -62
-    local fieldSpacing = 40
+    local fieldSpacing = 56
 
-    local function makeStepSlider(labelText, dbKey, index)
+    local function makeStepSlider(labelText, dbKey, index, maxVal, onChange)
         local y = fieldStartY - (index * fieldSpacing)
         local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         label:SetPoint("TOPLEFT", frame, "TOPLEFT", 12, y + 12)
@@ -155,22 +161,21 @@ function UI:Create()
         valueText:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -12, y + 12)
         valueText:SetText("5")
 
-        local slider = createSlider(frame, 220, 1, 5, "TOP", 0, y - 10)
-        bindStepSlider(slider, dbKey, valueText)
+        local slider = createSlider(frame, 220, 1, maxVal, "TOP", 0, y - 10)
+        bindStepSlider(slider, dbKey, valueText, maxVal, onChange)
         return slider, valueText
     end
 
-    self.stepSliderLeftRight, self.stepValueLeftRight = makeStepSlider(L["Left/Right steps:"], "stepLeftRight", 0)
-    self.stepSliderUpDown, self.stepValueUpDown = makeStepSlider(L["Up/Down steps:"], "stepUpDown", 1)
-    self.stepSliderForwardBack, self.stepValueForwardBack = makeStepSlider(L["Forward/Back steps:"], "stepForwardBack", 2)
-    self.stepSliderWheel, self.stepValueWheel = makeStepSlider(L["Mouse (wheel) steps:"], "stepWheel", 3)
-    self.stepSliderRotateScale, self.stepValueRotateScale = makeStepSlider(L["Rotate/Scale steps:"], "steps", 4)
+    self.stepSliderLeftRight, self.stepValueLeftRight = makeStepSlider(L["Left/Right (frames per press):"], "stepLeftRight", 0, 10)
+    self.stepSliderUpDown, self.stepValueUpDown = makeStepSlider(L["Up/Down (frames per press):"], "stepUpDown", 1, 10)
+    self.stepSliderForwardBack, self.stepValueForwardBack = makeStepSlider(L["Forward/Back (frames per press):"], "stepForwardBack", 2, 10)
+    self.stepSliderRotateScale, self.stepValueRotateScale = makeStepSlider(L["Rotate/Scale (frames per press):"], "steps", 3, 10)
 
     -- Nudge buttons are intentionally omitted: step values affect the already
     -- assigned keybinds and mouse wheel movement.
 
     -- No action buttons: step sliders affect the already-assigned keybinds and
-    -- mouse wheel movement. Use /hn stop and /bdt commit when needed.
+    -- mouse wheel movement. Use /bdt stop and /bdt commit when needed.
 
     local hint = frame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     hint:SetPoint("BOTTOM", frame, "BOTTOM", 0, 14)
@@ -239,7 +244,6 @@ function UI:UpdateSteps()
         { self.stepSliderLeftRight, self.stepValueLeftRight, "stepLeftRight" },
         { self.stepSliderUpDown, self.stepValueUpDown, "stepUpDown" },
         { self.stepSliderForwardBack, self.stepValueForwardBack, "stepForwardBack" },
-        { self.stepSliderWheel, self.stepValueWheel, "stepWheel" },
         { self.stepSliderRotateScale, self.stepValueRotateScale, "steps" },
     }
     for _, entry in ipairs(pairs) do
