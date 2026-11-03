@@ -1,5 +1,5 @@
 <Bindings>
-  <Binding name="BEARSDecorTOOL_NUDGE_LEFT" category="Bears_Decor_Tool">
+  <Binding name="BEARSDecorTOOL_NUDGE_LEFT" header="Bears_Decor_Tool" category="Bears_Decor_Tool">
     Bears_Decor_Tool.NudgeLeft()
   </Binding>
   <Binding name="BEARSDecorTOOL_NUDGE_RIGHT" category="Bears_Decor_Tool">
