@@ -1,0 +1,14 @@
+<Bindings>
+  <Binding name="HOUSINGNUDGE_NUDGE_LEFT" header="HOUSINGNUDGE" default="LEFT">
+    HousingNudge.NudgeLeft()
+  </Binding>
+  <Binding name="HOUSINGNUDGE_NUDGE_RIGHT" default="RIGHT">
+    HousingNudge.NudgeRight()
+  </Binding>
+  <Binding name="HOUSINGNUDGE_NUDGE_FORWARD" default="PAGEUP">
+    HousingNudge.NudgeForward()
+  </Binding>
+  <Binding name="HOUSINGNUDGE_NUDGE_BACK" default="PAGEDOWN">
+    HousingNudge.NudgeBack()
+  </Binding>
+</Bindings>
