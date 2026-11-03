@@ -1,0 +1,12 @@
+# JetBrains
+/.idea
+
+# Visual Studio
+.vscode/
+.vs/
+
+# Ace3 external libraries
+/Libs/
+
+# Packager output
+/.release
