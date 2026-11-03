@@ -1,9 +1,10 @@
 ## Interface: 120105
-## Title: Bears_Decor_Tool
+## Title: Bears Decor Tool
 ## Notes: Micro-nudge housing decor with the Expert Decor precision API.
 ## Author: Bear (N6REJ)
-## Version: 0.1.0
+## Version: 2026.11.03
 ## SavedVariables: BearsDecorToolDB
+## IconTexture: Interface\AddOns\Bears_Decor_Tool\nudge.tga
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
