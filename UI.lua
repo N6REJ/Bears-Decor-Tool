@@ -213,7 +213,6 @@ function UI:Show()
     frame:Show()
     self:UpdateStatus()
     self:UpdateSteps()
-    ns:Print("Bears_Decor_Tool window shown (shown=" .. tostring(frame:IsShown()) .. ", visible=" .. tostring(frame:IsVisible()) .. ", alpha=" .. tostring(frame:GetAlpha()) .. ", parent=" .. tostring(frame:GetParent() and frame:GetParent():GetName() or "nil") .. ").")
 end
 
 function UI:Hide()
