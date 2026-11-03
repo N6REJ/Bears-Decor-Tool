@@ -687,7 +687,6 @@ local function nudgeByKey(key)
 end
 
 HN.NudgeLeft = function()
-    ns:Print("NudgeLeft called")
     nudgeByKey("left")
 end
 
