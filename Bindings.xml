@@ -11,4 +11,10 @@
   <Binding name="BEARSDecorTOOL_NUDGE_BACK" category="Bears_Decor_Tool">
     Bears_Decor_Tool.NudgeBack()
   </Binding>
+  <Binding name="BEARSDecorTOOL_NUDGE_UP" category="Bears_Decor_Tool">
+    Bears_Decor_Tool.NudgeUp()
+  </Binding>
+  <Binding name="BEARSDecorTOOL_NUDGE_DOWN" category="Bears_Decor_Tool">
+    Bears_Decor_Tool.NudgeDown()
+  </Binding>
 </Bindings>

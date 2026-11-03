@@ -733,6 +733,14 @@ HN.NudgeBack = function()
     nudgeByKey("back")
 end
 
+HN.NudgeUp = function()
+    nudgeByKey("up")
+end
+
+HN.NudgeDown = function()
+    nudgeByKey("down")
+end
+
 HN.OpenKeyBindings = function()
     if KeyBindingFrame then
         ShowUIPanel(KeyBindingFrame)
@@ -754,9 +762,11 @@ function ns:UpdateOverrideBindings()
     if self:IsExpertDecorMode() then
         local ok1 = pcall(SetOverrideBinding, overrideFrame, true, "LEFT", "BEARSDecorTOOL_NUDGE_LEFT")
         local ok2 = pcall(SetOverrideBinding, overrideFrame, true, "RIGHT", "BEARSDecorTOOL_NUDGE_RIGHT")
-        local ok3 = pcall(SetOverrideBinding, overrideFrame, true, "PAGEUP", "BEARSDecorTOOL_NUDGE_FORWARD")
-        local ok4 = pcall(SetOverrideBinding, overrideFrame, true, "PAGEDOWN", "BEARSDecorTOOL_NUDGE_BACK")
-        ns:Print("override apply: LEFT=" .. tostring(ok1) .. " RIGHT=" .. tostring(ok2) .. " PAGEUP=" .. tostring(ok3) .. " PAGEDOWN=" .. tostring(ok4))
+        local ok3 = pcall(SetOverrideBinding, overrideFrame, true, "UP", "BEARSDecorTOOL_NUDGE_FORWARD")
+        local ok4 = pcall(SetOverrideBinding, overrideFrame, true, "DOWN", "BEARSDecorTOOL_NUDGE_BACK")
+        local ok5 = pcall(SetOverrideBinding, overrideFrame, true, "PAGEUP", "BEARSDecorTOOL_NUDGE_UP")
+        local ok6 = pcall(SetOverrideBinding, overrideFrame, true, "PAGEDOWN", "BEARSDecorTOOL_NUDGE_DOWN")
+        ns:Print("override apply: LEFT=" .. tostring(ok1) .. " RIGHT=" .. tostring(ok2) .. " UP=" .. tostring(ok3) .. " DOWN=" .. tostring(ok4) .. " PAGEUP=" .. tostring(ok5) .. " PAGEDOWN=" .. tostring(ok6))
     else
         local ok = pcall(ClearOverrideBindings, overrideFrame)
         ns:Print("override clear: " .. tostring(ok))
