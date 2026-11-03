@@ -102,7 +102,8 @@ Default keybinds, configurable in WoW's Key Bindings UI under **Bears_Decor_Tool
 - Page Up: nudge Forward
 - Page Down: nudge Back
 
-Mouse wheel on the Bears_Decor_Tool window nudges Forward/Back by the saved step count.
+Mouse wheel on the Bears_Decor_Tool window nudges Forward/Back by the saved wheel step count.
+The panel has editable fields for Left/Right, Up/Down, Wheel, and other (rotate/scale) step counts.
 The **Keybinds** button opens the Key Bindings UI.
 
 ## How it works
