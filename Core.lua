@@ -738,6 +738,7 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
             end
 
             ns:RefreshUI()
+            ns:Print("nudge left binding: " .. tostring(GetBindingKey and GetBindingKey("BEARSDecorTOOL_NUDGE_LEFT") or "nil"))
         end
         return
     end
