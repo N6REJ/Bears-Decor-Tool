@@ -607,6 +607,12 @@ function ns:HandleSlash(message)
         self:RefreshUI()
     elseif command == "status" then
         self:PrintStatus()
+    elseif command == "diag" then
+        self:Print("diag: ADDON_NAME=" .. tostring(ADDON_NAME))
+        self:Print("diag: db=" .. tostring(self.db ~= nil))
+        self:Print("diag: binding LEFT=" .. tostring(GetBindingKey and GetBindingKey("BEARSDecorTOOL_NUDGE_LEFT") or "nil"))
+        self:Print("diag: _G.Bears_Decor_Tool=" .. tostring(_G.Bears_Decor_Tool ~= nil))
+        self:Print("diag: NudgeLeft=" .. tostring(_G.Bears_Decor_Tool and _G.Bears_Decor_Tool.NudgeLeft ~= nil))
     elseif command == "steps" then
         local value = tonumber(rest)
         if not value then
@@ -739,7 +745,6 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
             end
 
             ns:RefreshUI()
-            ns:Print("nudge left binding: " .. tostring(GetBindingKey and GetBindingKey("BEARSDecorTOOL_NUDGE_LEFT") or "nil"))
         end
         return
     end
