@@ -113,13 +113,21 @@ if the release is never seen.
 In **Rotate** and **Scale** submodes, the arrow keys send the rotate or scale
 increments instead: Left/Right and Forward/Back for the keys.
 
+**Nudging in the Rotate tool uses the arrow keys.** The gold arrows on the
+rotation gizmo are mouse controls handled by the game. Bears Decor Tool cannot
+nudge through them, so clicking or dragging a gold arrow does not use the
+Rotate/Scale step. To rotate in small steps, press Left or Right (or Up or
+Down, which rotate the other way). Page Up and Page Down are Translate keys, so
+pressing them in Rotate mode switches the game to Translate.
+
 The mouse wheel has no function in housing mode. Use the arrow keys to nudge.
 
 ## Step sliders
 
 The window has four sliders. Each value is saved between sessions. Each value
 is the number of frames the game keeps the matching increment active for one
-press (1-10). Each frame turns the decor by an amount the game sets, so a
+press (1-10). All four default to **3**. A new install starts at 3. An existing
+install keeps the value it already saved; `/bdt reset` sets all four back to 3. Each frame turns the decor by an amount the game sets, so a
 press does not move an exact number of degrees. A value of 1 keeps the
 increment active for about two frames, so one press may move less than a
 degree.
@@ -130,8 +138,9 @@ degree.
 
 - **Forward/Back (frames per press)** (1-10): Forward and Back nudges
 
-- **Rotate/Scale (frames per press)** (1-10): the gold arrows in Rotate and
-  Scale mode. Rotate Left/Right and Scale Up/Down presses use this value.
+- **Rotate/Scale (frames per press)** (1-10): the arrow keys in Rotate and
+  Scale mode. Rotate Left/Right and Scale Up/Down presses use this value. It
+  does not change the gold gizmo arrows, which are mouse-only.
 
 `/bdt steps <n>` sets the Rotate/Scale value. A `/bdt pulse <type>` without a
 frame count uses the value for that type, the same as pressing its key.
@@ -181,7 +190,9 @@ decor selection changes, the player enters the world or logs out, and on
   frame rates.
 - Arrow nudges are frame counts, not degrees. The size of one arrow step
   depends on the game.
-- Gold arrow rotation is not in exact degrees. Advanced Decoration Tools gets
+- The gold rotation arrows are mouse-only and cannot nudge. Use the arrow keys
+  in Rotate mode instead.
+- Arrow-key rotation is not in exact degrees. Advanced Decoration Tools gets
   degree steps from `C_HousingBasicMode.RotateDecor`, which is not used here
   because it is not documented in `docs/API-NOTES.md`.
 - The housing API is new and may change between patches.

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Default nudge step (frames per press) for all four sliders is now 3, down from 5. Existing saved values are kept; `/bdt reset` restores 3.
+
 - Removed `Bindings.xml` and the global nudge functions it called. The Expert Decor arrow and Page keys handle nudging directly. The Key Bindings UI actions are gone.
 - The window title, minimap tooltip, and chat prefix now read "Bears Decor Tool" instead of "Bears_Decor_Tool".
 - Added hold-to-move for the Expert Decor arrow and Page keys. A tap moves one step, as `/bdt pulse` does. Holding past 0.3 seconds keeps the decor moving until the key is released, capped at 10 seconds. Not verified in game.

@@ -15,10 +15,10 @@ ns.L = L
 
 local DB_DEFAULTS = {
     version = 1,
-    steps = 5,
-    stepLeftRight = 5,
-    stepUpDown = 5,
-    stepForwardBack = 5,
+    steps = 3,
+    stepLeftRight = 3,
+    stepUpDown = 3,
+    stepForwardBack = 3,
     debug = false,
     nudgingEnabled = true,
     minimap = {
@@ -555,7 +555,7 @@ function ns:PrintStatus()
     end
 
     self:Print(string.format(L["Precision submode: %s"], self:GetSubmodeName(self:GetSubmode())))
-    self:Print(string.format(L["Default frames (steps): %s"], tostring(self.db and self.db.steps or 5)))
+    self:Print(string.format(L["Default frames (steps): %s"], tostring(self.db and self.db.steps or 3)))
 
     local active = self:GetActivePulseNames()
     if #active == 0 then
