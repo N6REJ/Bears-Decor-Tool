@@ -713,24 +713,28 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
             ns:InitDB()
             ns:CheckApiOnce()
 
-            -- Apply default keybindings only once, so /reload is not slowed by
-            -- rewriting the whole binding set every load.
-            if not (ns.db and ns.db.bindingsInitialized) then
-                local defaultBindings = {
-                    { key = "LEFT", binding = "BEARSDecorTOOL_NUDGE_LEFT" },
-                    { key = "RIGHT", binding = "BEARSDecorTOOL_NUDGE_RIGHT" },
-                    { key = "PAGEUP", binding = "BEARSDecorTOOL_NUDGE_FORWARD" },
-                    { key = "PAGEDOWN", binding = "BEARSDecorTOOL_NUDGE_BACK" },
-                }
-                for _, entry in ipairs(defaultBindings) do
-                    if GetBindingKey and GetBindingKey(entry.binding) == nil then
-                        pcall(SetBinding, entry.key, entry.binding)
+            -- Apply default keybindings when they are missing, so /reload and
+            -- upgrades still get working defaults without rewriting every load.
+            local defaultBindings = {
+                { key = "LEFT", binding = "BEARSDecorTOOL_NUDGE_LEFT" },
+                { key = "RIGHT", binding = "BEARSDecorTOOL_NUDGE_RIGHT" },
+                { key = "PAGEUP", binding = "BEARSDecorTOOL_NUDGE_FORWARD" },
+                { key = "PAGEDOWN", binding = "BEARSDecorTOOL_NUDGE_BACK" },
+            }
+            local changed = false
+            for _, entry in ipairs(defaultBindings) do
+                if GetBindingKey and GetBindingKey(entry.binding) == nil then
+                    local ok = pcall(SetBinding, entry.key, entry.binding)
+                    if ok then
+                        changed = true
                     end
                 end
+            end
+            if changed then
                 pcall(SaveBindings, 1)
-                if ns.db then
-                    ns.db.bindingsInitialized = true
-                end
+            end
+            if ns.db then
+                ns.db.bindingsInitialized = true
             end
 
             ns:RefreshUI()
