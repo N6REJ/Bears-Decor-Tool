@@ -65,8 +65,8 @@ local function bindStepSlider(slider, dbKey, valueText)
         value = math.floor((tonumber(value) or 1) + 0.5)
         if value < 1 then
             value = 1
-        elseif value > 60 then
-            value = 60
+        elseif value > 5 then
+            value = 5
         end
         if ns.db then
             ns.db[dbKey] = value
@@ -155,7 +155,7 @@ function UI:Create()
         valueText:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -12, y + 12)
         valueText:SetText("5")
 
-        local slider = createSlider(frame, 220, 1, 60, "TOP", 0, y - 10)
+        local slider = createSlider(frame, 220, 1, 5, "TOP", 0, y - 10)
         bindStepSlider(slider, dbKey, valueText)
         return slider, valueText
     end

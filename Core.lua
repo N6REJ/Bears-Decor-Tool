@@ -108,8 +108,8 @@ function ns:SanitizeDB()
         value = math.floor(value)
         if value < 1 then
             value = 1
-        elseif value > 60 then
-            value = 60
+        elseif value > 5 then
+            value = 5
         end
         return value
     end
@@ -617,8 +617,8 @@ function ns:HandleSlash(message)
         value = math.floor(value)
         if value < 1 then
             value = 1
-        elseif value > 60 then
-            value = 60
+        elseif value > 5 then
+            value = 5
         end
         self.db.steps = value
         self:Print(string.format(L["Default pulse frames set to %s."], tostring(value)))
