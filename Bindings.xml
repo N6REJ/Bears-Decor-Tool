@@ -1,14 +1,14 @@
 <Bindings>
-  <Binding name="BEARSDecorTOOL_NUDGE_LEFT" header="Bears_Decor_Tool">
+  <Binding name="BEARSDecorTOOL_NUDGE_LEFT" category="Bears_Decor_Tool">
     Bears_Decor_Tool.NudgeLeft()
   </Binding>
-  <Binding name="BEARSDecorTOOL_NUDGE_RIGHT">
+  <Binding name="BEARSDecorTOOL_NUDGE_RIGHT" category="Bears_Decor_Tool">
     Bears_Decor_Tool.NudgeRight()
   </Binding>
-  <Binding name="BEARSDecorTOOL_NUDGE_FORWARD">
+  <Binding name="BEARSDecorTOOL_NUDGE_FORWARD" category="Bears_Decor_Tool">
     Bears_Decor_Tool.NudgeForward()
   </Binding>
-  <Binding name="BEARSDecorTOOL_NUDGE_BACK">
+  <Binding name="BEARSDecorTOOL_NUDGE_BACK" category="Bears_Decor_Tool">
     Bears_Decor_Tool.NudgeBack()
   </Binding>
 </Bindings>

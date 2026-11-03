@@ -25,4 +25,3 @@ Locales\itIT.lua
 Core.lua
 Pulse.lua
 UI.lua
-Bindings.xml
