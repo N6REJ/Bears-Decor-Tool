@@ -710,6 +710,25 @@ end
 
 local eventFrame = CreateFrame("Frame")
 
+-- Temporary override frame used to route Expert Decor nudge keys through the
+-- addon's step values without permanently changing the player's keybindings.
+local overrideFrame = CreateFrame("Frame", "BearsDecorToolOverrideFrame")
+
+function ns:UpdateOverrideBindings()
+    if type(SetOverrideBinding) ~= "function" or type(ClearOverrideBindings) ~= "function" then
+        return
+    end
+
+    if self:IsExpertDecorMode() then
+        pcall(SetOverrideBinding, overrideFrame, true, "LEFT", "BEARSDecorTOOL_NUDGE_LEFT")
+        pcall(SetOverrideBinding, overrideFrame, true, "RIGHT", "BEARSDecorTOOL_NUDGE_RIGHT")
+        pcall(SetOverrideBinding, overrideFrame, true, "PAGEUP", "BEARSDecorTOOL_NUDGE_FORWARD")
+        pcall(SetOverrideBinding, overrideFrame, true, "PAGEDOWN", "BEARSDecorTOOL_NUDGE_BACK")
+    else
+        pcall(ClearOverrideBindings, overrideFrame)
+    end
+end
+
 local function registerEvent(event)
     -- A missing event on an older client should not prevent the addon from
     -- loading; capability detection reports the missing API surface instead.
@@ -730,6 +749,7 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
         if loadedAddon == ADDON_NAME then
             ns:InitDB()
             ns:CheckApiOnce()
+            ns:UpdateOverrideBindings()
 
             -- Do not modify the player's keybindings. Step values are applied to
             -- the addon's optional bindings only when the user assigns them.
@@ -746,6 +766,7 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
     if event == "HOUSE_EDITOR_MODE_CHANGED" then
         ns.editorMode = ...
         ns:StopPulses("editor mode changed")
+        ns:UpdateOverrideBindings()
         ns:RefreshUI()
         return
     end
@@ -757,6 +778,7 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
             ns.editorMode = Enum.HouseEditorMode.ExpertDecor
         end
         ns:StopPulses("decor selection changed")
+        ns:UpdateOverrideBindings()
         ns:RefreshUI()
         return
     end
@@ -765,6 +787,7 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
         ns.editorMode = nil
         ns.hasSelectedTarget = nil
         ns:StopPulses("player entering world")
+        ns:UpdateOverrideBindings()
         ns:RefreshUI()
         return
     end
