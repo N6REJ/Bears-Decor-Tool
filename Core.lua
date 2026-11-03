@@ -613,6 +613,20 @@ function ns:HandleSlash(message)
         self:Print("diag: binding LEFT=" .. tostring(GetBindingKey and GetBindingKey("BEARSDecorTOOL_NUDGE_LEFT") or "nil"))
         self:Print("diag: _G.Bears_Decor_Tool=" .. tostring(_G.Bears_Decor_Tool ~= nil))
         self:Print("diag: NudgeLeft=" .. tostring(_G.Bears_Decor_Tool and _G.Bears_Decor_Tool.NudgeLeft ~= nil))
+    elseif command == "fixbinds" then
+        local defaultBindings = {
+            { key = "LEFT", binding = "BEARSDecorTOOL_NUDGE_LEFT" },
+            { key = "RIGHT", binding = "BEARSDecorTOOL_NUDGE_RIGHT" },
+            { key = "PAGEUP", binding = "BEARSDecorTOOL_NUDGE_FORWARD" },
+            { key = "PAGEDOWN", binding = "BEARSDecorTOOL_NUDGE_BACK" },
+        }
+        for _, entry in ipairs(defaultBindings) do
+            local ok, err = pcall(SetBinding, entry.key, entry.binding)
+            self:Print("fixbinds: SetBinding " .. entry.key .. " -> " .. tostring(ok) .. " " .. tostring(err))
+            self:Print("fixbinds: now " .. entry.binding .. " = " .. tostring(GetBindingKey and GetBindingKey(entry.binding)))
+        end
+        local sok, serr = pcall(SaveBindings, 1)
+        self:Print("fixbinds: SaveBindings = " .. tostring(sok) .. " " .. tostring(serr))
     elseif command == "steps" then
         local value = tonumber(rest)
         if not value then
@@ -731,14 +745,18 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
             local changed = false
             for _, entry in ipairs(defaultBindings) do
                 if GetBindingKey and GetBindingKey(entry.binding) == nil then
-                    local ok = pcall(SetBinding, entry.key, entry.binding)
+                    local ok, err = pcall(SetBinding, entry.key, entry.binding)
+                    ns:Print("diag: SetBinding " .. entry.key .. " -> " .. tostring(ok) .. " " .. tostring(err))
                     if ok then
                         changed = true
                     end
+                else
+                    ns:Print("diag: already bound " .. entry.binding .. " = " .. tostring(GetBindingKey(entry.binding)))
                 end
             end
             if changed then
-                pcall(SaveBindings, 1)
+                local sok, serr = pcall(SaveBindings, 1)
+                ns:Print("diag: SaveBindings = " .. tostring(sok) .. " " .. tostring(serr))
             end
             if ns.db then
                 ns.db.bindingsInitialized = true
