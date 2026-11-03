@@ -623,8 +623,7 @@ function ns:HandleSlash(message)
             end
         end
         self:Print("diag: binding registered=" .. tostring(found))
-    elseif command == "restorekeys" then
-        self:Print("Open Key Bindings, click 'Defaults' to restore all defaults, then /reload.")
+
     elseif command == "steps" then
         local value = tonumber(rest)
         if not value then
@@ -755,7 +754,6 @@ local overrideFrame = CreateFrame("Frame", "BearsDecorToolOverrideFrame")
 
 function ns:UpdateOverrideBindings()
     if type(SetOverrideBinding) ~= "function" or type(ClearOverrideBindings) ~= "function" then
-        ns:Print("override API unavailable")
         return
     end
 
@@ -764,12 +762,14 @@ function ns:UpdateOverrideBindings()
         local ok2 = pcall(SetOverrideBinding, overrideFrame, true, "RIGHT", "BEARSDecorTOOL_NUDGE_RIGHT")
         local ok3 = pcall(SetOverrideBinding, overrideFrame, true, "UP", "BEARSDecorTOOL_NUDGE_FORWARD")
         local ok4 = pcall(SetOverrideBinding, overrideFrame, true, "DOWN", "BEARSDecorTOOL_NUDGE_BACK")
-        local ok5 = pcall(SetOverrideBinding, overrideFrame, true, "PAGEUP", "BEARSDecorTOOL_NUDGE_UP")
-        local ok6 = pcall(SetOverrideBinding, overrideFrame, true, "PAGEDOWN", "BEARSDecorTOOL_NUDGE_DOWN")
-        ns:Print("override apply: LEFT=" .. tostring(ok1) .. " RIGHT=" .. tostring(ok2) .. " UP=" .. tostring(ok3) .. " DOWN=" .. tostring(ok4) .. " PAGEUP=" .. tostring(ok5) .. " PAGEDOWN=" .. tostring(ok6))
+        pcall(SetOverrideBinding, overrideFrame, true, "LEFT", "BEARSDecorTOOL_NUDGE_LEFT")
+        pcall(SetOverrideBinding, overrideFrame, true, "RIGHT", "BEARSDecorTOOL_NUDGE_RIGHT")
+        pcall(SetOverrideBinding, overrideFrame, true, "UP", "BEARSDecorTOOL_NUDGE_FORWARD")
+        pcall(SetOverrideBinding, overrideFrame, true, "DOWN", "BEARSDecorTOOL_NUDGE_BACK")
+        pcall(SetOverrideBinding, overrideFrame, true, "PAGEUP", "BEARSDecorTOOL_NUDGE_UP")
+        pcall(SetOverrideBinding, overrideFrame, true, "PAGEDOWN", "BEARSDecorTOOL_NUDGE_DOWN")
     else
-        local ok = pcall(ClearOverrideBindings, overrideFrame)
-        ns:Print("override clear: " .. tostring(ok))
+        pcall(ClearOverrideBindings, overrideFrame)
     end
 end
 
