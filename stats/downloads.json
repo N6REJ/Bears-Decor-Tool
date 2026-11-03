@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "2",
+  "owner": "N6REJ",
+  "repo": "Bears-Decor-Tool",
+  "visibility": "public",
+  "generatedAt": "2026-11-03T12:32:22.839Z",
+  "stats": {
+    "total": 256,
+    "day": 256,
+    "week": 256,
+    "month": 256,
+    "year": 256
+  },
+  "partial": {
+    "day": true,
+    "week": true,
+    "month": true,
+    "year": true
+  },
+  "periods": {
+    "day": {
+      "start": "2026-11-03",
+      "end": "2026-11-03",
+      "label": "2026-11-03"
+    },
+    "week": {
+      "start": "2026-11-02",
+      "end": "2026-11-08",
+      "label": "2026-W45"
+    },
+    "month": {
+      "start": "2026-11-01",
+      "end": "2026-11-30",
+      "label": "Nov 2026"
+    },
+    "year": {
+      "start": "2026-01-01",
+      "end": "2026-12-31",
+      "label": "2026"
+    }
+  },
+  "snapshots": {
+    "windowDays": 365,
+    "count": 1,
+    "firstDate": "2026-11-03",
+    "lastDate": "2026-11-03",
+    "series": {
+      "2026-11-03": 256
+    }
+  },
+  "profile": {
+    "defaultMode": "daily",
+    "hourlyEnabled": false
+  }
+}
