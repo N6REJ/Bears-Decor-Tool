@@ -613,6 +613,16 @@ function ns:HandleSlash(message)
         self:Print("diag: binding LEFT=" .. tostring(GetBindingKey and GetBindingKey("BEARSDecorTOOL_NUDGE_LEFT") or "nil"))
         self:Print("diag: _G.Bears_Decor_Tool=" .. tostring(_G.Bears_Decor_Tool ~= nil))
         self:Print("diag: NudgeLeft=" .. tostring(_G.Bears_Decor_Tool and _G.Bears_Decor_Tool.NudgeLeft ~= nil))
+        local found = false
+        if GetNumBindings then
+            for i = 1, GetNumBindings() do
+                local name = GetBinding(i)
+                if name == "BEARSDecorTOOL_NUDGE_LEFT" then
+                    found = true
+                end
+            end
+        end
+        self:Print("diag: binding registered=" .. tostring(found))
     elseif command == "fixbinds" then
         local defaultBindings = {
             { key = "LEFT", binding = "BEARSDecorTOOL_NUDGE_LEFT" },
