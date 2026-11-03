@@ -2,7 +2,7 @@ local addonName = ...
 local L = LibStub("AceLocale-3.0"):NewLocale(addonName, "enUS", true, true)
 
 -- Core
-L["Bears_Decor_Tool"] = true
+L["Bears Decor Tool"] = true
 L["Housing precision API is unavailable (%s)."] = true
 L["This addon requires retail Midnight 12.1.5 or newer with Housing enabled."] = true
 L["Open the House Editor first."] = true

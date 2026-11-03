@@ -4,7 +4,7 @@ local ADDON_NAME, ns = ...
 -- private to this addon; nothing is added to _G.
 ns.name = ADDON_NAME
 ns.version = "0.1.0"
-ns.PREFIX = "|cff33ff99Bears_Decor_Tool|r"
+ns.PREFIX = "|cff33ff99Bears Decor Tool|r"
 
 local aceLocale = LibStub and LibStub("AceLocale-3.0")
 local L = aceLocale and aceLocale:GetLocale(ADDON_NAME)
@@ -21,8 +21,10 @@ local DB_DEFAULTS = {
     stepForwardBack = 5,
     debug = false,
     nudgingEnabled = true,
-    minimapAngle = 220,
-    bindingsInitialized = false,
+    minimap = {
+        hide = false,
+        minimapPos = 220,
+    },
     frame = {
         point = "CENTER",
         relPoint = "CENTER",
@@ -130,7 +132,6 @@ function ns:SanitizeDB()
         db.nudgingEnabled = DB_DEFAULTS.nudgingEnabled
     end
 
-    db.minimapAngle = sanitizeNumber(db.minimapAngle, DB_DEFAULTS.minimapAngle) % 360
 
     if type(db.frame) ~= "table" then
         db.frame = {}
@@ -730,11 +731,6 @@ function ns:HandleSlash(message)
     end
 end
 
--- Global entry point used by Bindings.xml. WoW key bindings execute global
--- code, so keep this table small and route everything through the private ns.
-_G.Bears_Decor_Tool = _G.Bears_Decor_Tool or {}
-local HN = _G.Bears_Decor_Tool
-
 local function resolveNudgeKey(key)
     if type(key) ~= "string" then
         return key
@@ -789,36 +785,6 @@ local function nudgeByKey(key)
     end
 end
 ns.NudgeByKey = nudgeByKey
-
-HN.NudgeLeft = function()
-    nudgeByKey("left")
-end
-
-HN.NudgeRight = function()
-    nudgeByKey("right")
-end
-
-HN.NudgeForward = function()
-    nudgeByKey("forward")
-end
-
-HN.NudgeBack = function()
-    nudgeByKey("back")
-end
-
-HN.NudgeUp = function()
-    nudgeByKey("up")
-end
-
-HN.NudgeDown = function()
-    nudgeByKey("down")
-end
-
-HN.OpenKeyBindings = function()
-    if KeyBindingFrame then
-        ShowUIPanel(KeyBindingFrame)
-    end
-end
 
 local eventFrame = CreateFrame("Frame")
 

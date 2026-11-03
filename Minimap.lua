@@ -1,4 +1,4 @@
-local _, ns = ...
+local ADDON_NAME, ns = ...
 
 ns.Minimap = ns.Minimap or {}
 local MB = ns.Minimap
@@ -8,115 +8,42 @@ if not L then
     L = setmetatable({}, { __index = function(_, key) return key end })
 end
 
--- The icon is parented to UIParent and anchored to Minimap. Blizzard's Minimap
--- frame itself is not changed. Position is stored as an angle in degrees.
-local ICON_TEXTURE = "Interface\\Icons\\INV_Misc_Map02"
-local BORDER_TEXTURE = "Interface\\Minimap\\MiniMap-TrackingBorder"
-local HIGHLIGHT_TEXTURE = "Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight"
+-- The minimap button is created by LibDBIcon-1.0 from a LibDataBroker launcher.
+-- LibDBIcon handles placement, layering, and dragging around the minimap. Its
+-- saved state (angle and hidden flag) lives in ns.db.minimap.
+local ICON_TEXTURE = "Interface\\AddOns\\" .. ADDON_NAME .. "\\nudge.tga"
 
-local button
+local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
+local DBIcon = LibStub and LibStub("LibDBIcon-1.0", true)
 
--- math.atan2 is not in Lua 5.1, so compute the quadrant by hand.
-local function atan2(y, x)
-    if x > 0 then
-        return math.atan(y / x)
-    elseif x < 0 and y >= 0 then
-        return math.atan(y / x) + math.pi
-    elseif x < 0 then
-        return math.atan(y / x) - math.pi
-    elseif y > 0 then
-        return math.pi / 2
-    elseif y < 0 then
-        return -math.pi / 2
-    end
-    return 0
-end
-
-local function radius()
-    local width = Minimap and Minimap:GetWidth() or 140
-    return width / 2 + 5
-end
-
-local function place(angle)
-    if not button or not Minimap then
-        return
-    end
-    local rad = math.rad(angle)
-    button:ClearAllPoints()
-    button:SetPoint("CENTER", Minimap, "CENTER", math.cos(rad) * radius(), math.sin(rad) * radius())
-end
-
-local function angleFromCursor()
-    local cx, cy = Minimap:GetCenter()
-    local scale = UIParent:GetEffectiveScale()
-    local mx, my = GetCursorPosition()
-    mx, my = mx / scale, my / scale
-    return math.deg(atan2(my - cy, mx - cx))
-end
-
-local function updateDrag()
-    if not ns.db or not Minimap then
-        return
-    end
-    local angle = angleFromCursor() % 360
-    ns.db.minimapAngle = angle
-    place(angle)
-end
+local launcher
+local registered = false
 
 function MB:Create()
-    if button then
-        return button
+    if registered then
+        return launcher
     end
-    if not Minimap or not CreateFrame then
+    if not (LDB and DBIcon and ns.db) then
         return nil
     end
 
-    button = CreateFrame("Button", "BearsDecorToolMinimapButton", UIParent)
-    button:SetSize(32, 32)
-    button:SetFrameStrata("MEDIUM")
-    button:SetFrameLevel((Minimap:GetFrameLevel() or 1) + 5)
-    button:RegisterForClicks("LeftButtonUp")
-    button:RegisterForDrag("LeftButton")
+    launcher = LDB:NewDataObject("BearsDecorTool", {
+        type = "launcher",
+        text = L["Bears Decor Tool"],
+        icon = ICON_TEXTURE,
+        OnClick = function(_, button)
+            if button == "LeftButton" and ns.UI then
+                ns.UI:Toggle()
+            end
+        end,
+        OnTooltipShow = function(tooltip)
+            tooltip:AddLine(L["Bears Decor Tool"])
+            tooltip:AddLine(L["Click to open or close the options."], 1, 1, 1)
+            tooltip:AddLine(L["Drag to move this icon around the minimap."], 1, 1, 1)
+        end,
+    })
 
-    local icon = button:CreateTexture(nil, "BACKGROUND")
-    icon:SetSize(20, 20)
-    icon:SetPoint("CENTER")
-    icon:SetTexture(ICON_TEXTURE)
-
-    local border = button:CreateTexture(nil, "OVERLAY")
-    border:SetSize(54, 54)
-    border:SetPoint("TOPLEFT")
-    border:SetTexture(BORDER_TEXTURE)
-
-    button:SetHighlightTexture(HIGHLIGHT_TEXTURE)
-
-    button:SetScript("OnClick", function()
-        if ns.UI then
-            ns.UI:Toggle()
-        end
-    end)
-
-    button:SetScript("OnDragStart", function(self)
-        self:SetScript("OnUpdate", updateDrag)
-    end)
-
-    button:SetScript("OnDragStop", function(self)
-        self:SetScript("OnUpdate", nil)
-    end)
-
-    button:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:SetText(L["Bears_Decor_Tool"])
-        GameTooltip:AddLine(L["Click to open or close the options."], 1, 1, 1)
-        GameTooltip:AddLine(L["Drag to move this icon around the minimap."], 1, 1, 1)
-        GameTooltip:Show()
-    end)
-
-    button:SetScript("OnLeave", function()
-        GameTooltip:Hide()
-    end)
-
-    place((ns.db and ns.db.minimapAngle) or 220)
-    button:Show()
-    return button
+    DBIcon:Register(ADDON_NAME, launcher, ns.db.minimap)
+    registered = true
+    return launcher
 end

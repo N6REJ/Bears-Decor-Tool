@@ -87,10 +87,6 @@ its own after three seconds.
 
 ## Keybinds and mouse
 
-**Bindings.xml** adds six actions under **Bears Decor Tool** in WoW's Key
-Bindings UI: Nudge Left, Nudge Right, Nudge Forward, Nudge Back, Nudge Up, and
-Nudge Down. They are not bound to keys by default.
-
 While the House Editor is in **Expert Decor** mode, the addon also sets these
 override bindings:
 
@@ -117,8 +113,7 @@ if the release is never seen.
 In **Rotate** and **Scale** submodes, the arrow keys send the rotate or scale
 increments instead: Left/Right and Forward/Back for the keys.
 
-The mouse wheel has no function in housing mode. Use the arrow keys or the
-Key Bindings actions to nudge.
+The mouse wheel has no function in housing mode. Use the arrow keys to nudge.
 
 ## Step sliders
 
@@ -192,8 +187,6 @@ decor selection changes, the player enters the world or logs out, and on
 - The housing API is new and may change between patches.
 - Only one increment type is active at a time. Multi-axis and diagonal movement
   are not implemented.
-- The Key Bindings UI actions are press-only pulses. Hold-to-move applies only to
-  the Expert Decor arrow and Page keys.
 - Not affiliated with Blizzard Entertainment.
 
 ## Localization
@@ -212,9 +205,8 @@ Pulse.lua                  Frame-counted pulse engine, hold-to-move, safety caps
 Hold.lua                   Expert Decor arrow and Page key buttons (press and release)
 Minimap.lua                Minimap button that opens and closes the window
 UI.lua                     Movable window with step sliders
-Bindings.xml               Key Bindings UI entries for the six nudge actions
 Locales/                   AceLocale-3.0 localization files
-Libs/                      Vendored LibStub, CallbackHandler-1.0, and AceLocale-3.0
+Libs/                      Vendored LibStub, CallbackHandler-1.0, AceLocale-3.0, LibDataBroker-1.1, and LibDBIcon-1.0
 README.md                  This file
 CHANGELOG.md               Version history
 AGENTS.md                  Project guidance for contributors and agents
@@ -225,5 +217,5 @@ scripts/package.ps1        Optional local zip packaging
 
 ## Not implemented yet
 
-A settings or profile panel, automatic show/hide, hold-to-move for the Key
-Bindings UI actions, multi-axis movement, step presets, and automatic commits.
+A settings or profile panel, automatic show/hide, multi-axis movement, step
+presets, and automatic commits.

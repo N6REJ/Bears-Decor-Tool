@@ -130,7 +130,7 @@ function UI:Create()
 
     local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", frame, "TOP", 0, -12)
-    title:SetText(L["Bears_Decor_Tool"])
+    title:SetText(L["Bears Decor Tool"])
 
     local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
     close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -2, -2)
