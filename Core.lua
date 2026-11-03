@@ -18,6 +18,7 @@ local DB_DEFAULTS = {
     steps = 5,
     stepLeftRight = 5,
     stepUpDown = 5,
+    stepForwardBack = 5,
     stepWheel = 5,
     debug = false,
     bindingsInitialized = false,
@@ -117,6 +118,7 @@ function ns:SanitizeDB()
     db.steps = sanitizeStep(db.steps, DB_DEFAULTS.steps)
     db.stepLeftRight = sanitizeStep(db.stepLeftRight, DB_DEFAULTS.stepLeftRight)
     db.stepUpDown = sanitizeStep(db.stepUpDown, DB_DEFAULTS.stepUpDown)
+    db.stepForwardBack = sanitizeStep(db.stepForwardBack, DB_DEFAULTS.stepForwardBack)
     db.stepWheel = sanitizeStep(db.stepWheel, DB_DEFAULTS.stepWheel)
 
     if type(db.debug) ~= "boolean" then
@@ -224,7 +226,7 @@ function ns:GetStepValue(key)
     elseif key == "up" or key == "down" then
         return (db and db.stepUpDown) or DB_DEFAULTS.stepUpDown
     elseif key == "forward" or key == "back" then
-        return (db and db.stepWheel) or DB_DEFAULTS.stepWheel
+        return (db and db.stepForwardBack) or DB_DEFAULTS.stepForwardBack
     end
     return (db and db.steps) or DB_DEFAULTS.steps
 end

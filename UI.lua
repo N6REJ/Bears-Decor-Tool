@@ -91,7 +91,7 @@ function UI:Create()
     self.frame = frame
     frame:Hide()
 
-    frame:SetSize(260, 340)
+    frame:SetSize(260, 400)
     frame:SetFrameStrata("FULLSCREEN_DIALOG")
     frame:SetToplevel(true)
     frame:SetClampedToScreen(true)
@@ -143,7 +143,7 @@ function UI:Create()
     -- corresponding nudge direction; the value is persisted in SavedVariables and
     -- applied to the already-assigned keybinds and mouse wheel movement.
     local fieldStartY = -62
-    local fieldSpacing = 46
+    local fieldSpacing = 40
 
     local function makeStepSlider(labelText, dbKey, index)
         local y = fieldStartY - (index * fieldSpacing)
@@ -162,8 +162,9 @@ function UI:Create()
 
     self.stepSliderLeftRight, self.stepValueLeftRight = makeStepSlider(L["Left/Right steps:"], "stepLeftRight", 0)
     self.stepSliderUpDown, self.stepValueUpDown = makeStepSlider(L["Up/Down steps:"], "stepUpDown", 1)
-    self.stepSliderWheel, self.stepValueWheel = makeStepSlider(L["Wheel steps:"], "stepWheel", 2)
-    self.stepSliderOther, self.stepValueOther = makeStepSlider(L["Other steps:"], "steps", 3)
+    self.stepSliderForwardBack, self.stepValueForwardBack = makeStepSlider(L["Forward/Back steps:"], "stepForwardBack", 2)
+    self.stepSliderWheel, self.stepValueWheel = makeStepSlider(L["Mouse (wheel) steps:"], "stepWheel", 3)
+    self.stepSliderRotateScale, self.stepValueRotateScale = makeStepSlider(L["Rotate/Scale steps:"], "steps", 4)
 
     -- Nudge buttons are intentionally omitted: step values affect the already
     -- assigned keybinds and mouse wheel movement.
@@ -237,8 +238,9 @@ function UI:UpdateSteps()
     local pairs = {
         { self.stepSliderLeftRight, self.stepValueLeftRight, "stepLeftRight" },
         { self.stepSliderUpDown, self.stepValueUpDown, "stepUpDown" },
+        { self.stepSliderForwardBack, self.stepValueForwardBack, "stepForwardBack" },
         { self.stepSliderWheel, self.stepValueWheel, "stepWheel" },
-        { self.stepSliderOther, self.stepValueOther, "steps" },
+        { self.stepSliderRotateScale, self.stepValueRotateScale, "steps" },
     }
     for _, entry in ipairs(pairs) do
         local slider, valueText, dbKey = entry[1], entry[2], entry[3]
