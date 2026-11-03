@@ -716,16 +716,17 @@ local overrideFrame = CreateFrame("Frame", "BearsDecorToolOverrideFrame")
 
 function ns:UpdateOverrideBindings()
     if type(SetOverrideBinding) ~= "function" or type(ClearOverrideBindings) ~= "function" then
+        ns:Print("override API unavailable")
         return
     end
 
     if self:IsExpertDecorMode() then
-        pcall(SetOverrideBinding, overrideFrame, true, "LEFT", "BEARSDecorTOOL_NUDGE_LEFT")
-        pcall(SetOverrideBinding, overrideFrame, true, "RIGHT", "BEARSDecorTOOL_NUDGE_RIGHT")
-        pcall(SetOverrideBinding, overrideFrame, true, "PAGEUP", "BEARSDecorTOOL_NUDGE_FORWARD")
-        pcall(SetOverrideBinding, overrideFrame, true, "PAGEDOWN", "BEARSDecorTOOL_NUDGE_BACK")
+        local ok1 = pcall(SetOverrideBinding, overrideFrame, true, "LEFT", "BEARSDecorTOOL_NUDGE_LEFT")
+        local ok2 = pcall(SetOverrideBinding, overrideFrame, true, "RIGHT", "BEARSDecorTOOL_NUDGE_RIGHT")
+        ns:Print("override apply: LEFT=" .. tostring(ok1) .. " RIGHT=" .. tostring(ok2))
     else
-        pcall(ClearOverrideBindings, overrideFrame)
+        local ok = pcall(ClearOverrideBindings, overrideFrame)
+        ns:Print("override clear: " .. tostring(ok))
     end
 end
 
