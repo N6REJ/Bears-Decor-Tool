@@ -671,10 +671,41 @@ end
 _G.Bears_Decor_Tool = _G.Bears_Decor_Tool or {}
 local HN = _G.Bears_Decor_Tool
 
+local function resolveNudgeKey(key)
+    if type(key) ~= "string" then
+        return key
+    end
+    key = string.lower(key)
+    local submode = ns:GetSubmodeName(ns:GetSubmode())
+    if submode == "Rotate" then
+        if key == "left" then
+            return "rotateleft"
+        elseif key == "right" then
+            return "rotateright"
+        elseif key == "forward" then
+            return "rotateright"
+        elseif key == "back" then
+            return "rotateleft"
+        end
+    elseif submode == "Scale" then
+        if key == "left" then
+            return "scaledown"
+        elseif key == "right" then
+            return "scaleup"
+        elseif key == "forward" then
+            return "scaleup"
+        elseif key == "back" then
+            return "scaledown"
+        end
+    end
+    return key
+end
+
 local function nudgeByKey(key)
     if not ns or not ns.Pulse then
         return
     end
+    key = resolveNudgeKey(key)
     local incrementType = ns:GetIncrementType(key)
     if not incrementType then
         return
@@ -723,7 +754,9 @@ function ns:UpdateOverrideBindings()
     if self:IsExpertDecorMode() then
         local ok1 = pcall(SetOverrideBinding, overrideFrame, true, "LEFT", "BEARSDecorTOOL_NUDGE_LEFT")
         local ok2 = pcall(SetOverrideBinding, overrideFrame, true, "RIGHT", "BEARSDecorTOOL_NUDGE_RIGHT")
-        ns:Print("override apply: LEFT=" .. tostring(ok1) .. " RIGHT=" .. tostring(ok2))
+        local ok3 = pcall(SetOverrideBinding, overrideFrame, true, "PAGEUP", "BEARSDecorTOOL_NUDGE_FORWARD")
+        local ok4 = pcall(SetOverrideBinding, overrideFrame, true, "PAGEDOWN", "BEARSDecorTOOL_NUDGE_BACK")
+        ns:Print("override apply: LEFT=" .. tostring(ok1) .. " RIGHT=" .. tostring(ok2) .. " PAGEUP=" .. tostring(ok3) .. " PAGEDOWN=" .. tostring(ok4))
     else
         local ok = pcall(ClearOverrideBindings, overrideFrame)
         ns:Print("override clear: " .. tostring(ok))
