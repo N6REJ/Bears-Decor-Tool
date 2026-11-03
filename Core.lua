@@ -623,20 +623,8 @@ function ns:HandleSlash(message)
             end
         end
         self:Print("diag: binding registered=" .. tostring(found))
-    elseif command == "fixbinds" then
-        local defaultBindings = {
-            { key = "LEFT", binding = "BEARSDecorTOOL_NUDGE_LEFT" },
-            { key = "RIGHT", binding = "BEARSDecorTOOL_NUDGE_RIGHT" },
-            { key = "PAGEUP", binding = "BEARSDecorTOOL_NUDGE_FORWARD" },
-            { key = "PAGEDOWN", binding = "BEARSDecorTOOL_NUDGE_BACK" },
-        }
-        for _, entry in ipairs(defaultBindings) do
-            local ok, err = pcall(SetBinding, entry.key, entry.binding)
-            self:Print("fixbinds: SetBinding " .. entry.key .. " -> " .. tostring(ok) .. " " .. tostring(err))
-            self:Print("fixbinds: now " .. entry.binding .. " = " .. tostring(GetBindingKey and GetBindingKey(entry.binding)))
-        end
-        local sok, serr = pcall(SaveBindings, 1)
-        self:Print("fixbinds: SaveBindings = " .. tostring(sok) .. " " .. tostring(serr))
+    elseif command == "restorekeys" then
+        self:Print("Open Key Bindings, click 'Defaults' to restore all defaults, then /reload.")
     elseif command == "steps" then
         local value = tonumber(rest)
         if not value then
@@ -744,33 +732,8 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
             ns:InitDB()
             ns:CheckApiOnce()
 
-            -- Apply default keybindings when they are missing, so /reload and
-            -- upgrades still get working defaults without rewriting every load.
-            local defaultBindings = {
-                { key = "LEFT", binding = "BEARSDecorTOOL_NUDGE_LEFT" },
-                { key = "RIGHT", binding = "BEARSDecorTOOL_NUDGE_RIGHT" },
-                { key = "PAGEUP", binding = "BEARSDecorTOOL_NUDGE_FORWARD" },
-                { key = "PAGEDOWN", binding = "BEARSDecorTOOL_NUDGE_BACK" },
-            }
-            local changed = false
-            for _, entry in ipairs(defaultBindings) do
-                if GetBindingKey and GetBindingKey(entry.binding) == nil then
-                    local ok, err = pcall(SetBinding, entry.key, entry.binding)
-                    ns:Print("diag: SetBinding " .. entry.key .. " -> " .. tostring(ok) .. " " .. tostring(err))
-                    if ok then
-                        changed = true
-                    end
-                else
-                    ns:Print("diag: already bound " .. entry.binding .. " = " .. tostring(GetBindingKey(entry.binding)))
-                end
-            end
-            if changed then
-                local sok, serr = pcall(SaveBindings, 1)
-                ns:Print("diag: SaveBindings = " .. tostring(sok) .. " " .. tostring(serr))
-            end
-            if ns.db then
-                ns.db.bindingsInitialized = true
-            end
+            -- Do not modify the player's keybindings. Step values are applied to
+            -- the addon's optional bindings only when the user assigns them.
 
             ns:RefreshUI()
         end
