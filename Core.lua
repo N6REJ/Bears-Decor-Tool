@@ -16,6 +16,9 @@ ns.L = L
 local DB_DEFAULTS = {
     version = 1,
     steps = 5,
+    stepLeftRight = 5,
+    stepUpDown = 5,
+    stepWheel = 5,
     debug = false,
     bindingsInitialized = false,
     frame = {
@@ -100,13 +103,21 @@ function ns:SanitizeDB()
         db.version = DB_DEFAULTS.version
     end
 
-    db.steps = sanitizeNumber(db.steps, DB_DEFAULTS.steps)
-    db.steps = math.floor(db.steps)
-    if db.steps < 1 then
-        db.steps = 1
-    elseif db.steps > 60 then
-        db.steps = 60
+    local function sanitizeStep(value, fallback)
+        value = sanitizeNumber(value, fallback)
+        value = math.floor(value)
+        if value < 1 then
+            value = 1
+        elseif value > 60 then
+            value = 60
+        end
+        return value
     end
+
+    db.steps = sanitizeStep(db.steps, DB_DEFAULTS.steps)
+    db.stepLeftRight = sanitizeStep(db.stepLeftRight, DB_DEFAULTS.stepLeftRight)
+    db.stepUpDown = sanitizeStep(db.stepUpDown, DB_DEFAULTS.stepUpDown)
+    db.stepWheel = sanitizeStep(db.stepWheel, DB_DEFAULTS.stepWheel)
 
     if type(db.debug) ~= "boolean" then
         db.debug = DB_DEFAULTS.debug
@@ -200,6 +211,22 @@ function ns:GetIncrementName(incrementType)
         end
     end
     return tostring(incrementType)
+end
+
+function ns:GetStepValue(key)
+    if type(key) ~= "string" then
+        key = ""
+    end
+    key = string.lower(key)
+    local db = self.db
+    if key == "left" or key == "right" then
+        return (db and db.stepLeftRight) or DB_DEFAULTS.stepLeftRight
+    elseif key == "up" or key == "down" then
+        return (db and db.stepUpDown) or DB_DEFAULTS.stepUpDown
+    elseif key == "forward" or key == "back" then
+        return (db and db.stepWheel) or DB_DEFAULTS.stepWheel
+    end
+    return (db and db.steps) or DB_DEFAULTS.steps
 end
 
 function ns:GetSubmodeForIncrement(incrementType)
@@ -634,7 +661,7 @@ local function nudgeByKey(key)
     if not incrementType then
         return
     end
-    local steps = (ns.db and ns.db.steps) or 5
+    local steps = ns:GetStepValue(key)
     ns.Pulse:Start(incrementType, steps)
     if ns.UI and ns.UI.UpdateStatus then
         ns.UI:UpdateStatus()

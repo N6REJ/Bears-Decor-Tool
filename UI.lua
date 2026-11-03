@@ -44,6 +44,47 @@ local function addNudgeButton(parent, text, key, point, x, y)
     return button
 end
 
+local function createEditBox(parent, width, height, point, x, y)
+    local eb = CreateFrame("EditBox", nil, parent, "InputBoxTemplate")
+    eb:SetSize(width, height)
+    eb:SetPoint(point, parent, point, x, y)
+    eb:SetAutoFocus(false)
+    eb:SetNumeric(true)
+    eb:SetMaxLetters(3)
+    eb:SetTextInsets(4, 4, 0, 0)
+    return eb
+end
+
+local function bindStepField(editBox, dbKey)
+    local function commit(self)
+        local value = tonumber(self:GetText())
+        if not value then
+            value = (ns.db and ns.db[dbKey]) or 5
+        end
+        value = math.floor(value)
+        if value < 1 then
+            value = 1
+        elseif value > 60 then
+            value = 60
+        end
+        if ns.db then
+            ns.db[dbKey] = value
+            ns:SanitizeDB()
+        end
+        self:SetText(tostring(value))
+        self:ClearFocus()
+        if ns.UI and ns.UI.UpdateStatus then
+            ns.UI:UpdateStatus()
+        end
+    end
+    editBox:SetScript("OnEnterPressed", commit)
+    editBox:SetScript("OnEditFocusLost", commit)
+    editBox:SetScript("OnEscapePressed", function(self)
+        self:ClearFocus()
+    end)
+    return editBox
+end
+
 function UI:Create()
     if self.frame then
         return self.frame
@@ -53,7 +94,7 @@ function UI:Create()
     self.frame = frame
     frame:Hide()
 
-    frame:SetSize(260, 360)
+    frame:SetSize(260, 700)
     frame:SetFrameStrata("FULLSCREEN_DIALOG")
     frame:SetToplevel(true)
     frame:SetClampedToScreen(true)
@@ -101,40 +142,28 @@ function UI:Create()
     status:SetText(L["API unavailable"])
     self.status = status
 
-    local stepsLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    stepsLabel:SetPoint("TOPLEFT", frame, "TOPLEFT", 12, -60)
-    stepsLabel:SetText(string.format(L["Steps: %s"], (ns.db and ns.db.steps) or 5))
-    self.stepsLabel = stepsLabel
+    -- Per-category step fields. Each field edits the frame count used for the
+    -- corresponding nudge direction; the value is persisted in SavedVariables.
+    local fieldStartY = -58
+    local fieldSpacing = 20
 
-    local stepDown = createButton(frame, "-", 28, 22, "TOPRIGHT", -44, -58)
-    stepDown:SetScript("OnClick", function()
-        local value = (ns.db and ns.db.steps) or 1
-        value = value - 1
-        if value < 1 then
-            value = 1
-        end
-        if ns.db then
-            ns.db.steps = value
-        end
-        ns.UI:UpdateSteps()
-        ns.UI:UpdateStatus()
-    end)
+    local function makeStepField(labelText, dbKey, index)
+        local y = fieldStartY - (index * fieldSpacing)
+        local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        label:SetPoint("TOPLEFT", frame, "TOPLEFT", 12, y + 2)
+        label:SetText(labelText)
 
-    local stepUp = createButton(frame, "+", 28, 22, "TOPRIGHT", -8, -58)
-    stepUp:SetScript("OnClick", function()
-        local value = (ns.db and ns.db.steps) or 1
-        value = value + 1
-        if value > 60 then
-            value = 60
-        end
-        if ns.db then
-            ns.db.steps = value
-        end
-        ns.UI:UpdateSteps()
-        ns.UI:UpdateStatus()
-    end)
+        local eb = createEditBox(frame, 46, 20, "TOPRIGHT", -12, y - 2)
+        bindStepField(eb, dbKey)
+        return eb
+    end
 
-    local startY = -88
+    self.stepFieldLeftRight = makeStepField(L["Left/Right steps:"], "stepLeftRight", 0)
+    self.stepFieldUpDown = makeStepField(L["Up/Down steps:"], "stepUpDown", 1)
+    self.stepFieldWheel = makeStepField(L["Wheel steps:"], "stepWheel", 2)
+    self.stepFieldOther = makeStepField(L["Other steps:"], "steps", 3)
+
+    local startY = -136
     local rowHeight = 30
     for rowIndex, row in ipairs(NUDGE_ROWS) do
         local y = startY - ((rowIndex - 1) * rowHeight)
@@ -145,18 +174,18 @@ function UI:Create()
         addNudgeButton(frame, L[right[1]], right[2], "TOPRIGHT", -12, y)
     end
 
-    local stop = createButton(frame, L["Stop"], 236, 26, "TOP", 0, -242)
+    local stop = createButton(frame, L["Stop"], 236, 26, "TOP", 0, -276)
     stop:SetScript("OnClick", function()
         ns:StopPulses("Stop button")
         ns.UI:UpdateStatus()
     end)
 
-    local commit = createButton(frame, L["Commit"], 236, 26, "TOP", 0, -276)
+    local commit = createButton(frame, L["Commit"], 236, 26, "TOP", 0, -310)
     commit:SetScript("OnClick", function()
         ns.UI:Commit()
     end)
 
-    local keys = createButton(frame, L["Keybinds"], 236, 22, "TOP", 0, -306)
+    local keys = createButton(frame, L["Keybinds"], 236, 22, "TOP", 0, -344)
     keys:SetScript("OnClick", function()
         if _G.Bears_Decor_Tool and _G.Bears_Decor_Tool.OpenKeyBindings then
             _G.Bears_Decor_Tool.OpenKeyBindings()
@@ -207,7 +236,7 @@ function UI:Show()
     frame:Show()
     self:UpdateStatus()
     self:UpdateSteps()
-    ns:Print("HousingNudge window shown (shown=" .. tostring(frame:IsShown()) .. ", visible=" .. tostring(frame:IsVisible()) .. ", alpha=" .. tostring(frame:GetAlpha()) .. ", parent=" .. tostring(frame:GetParent() and frame:GetParent():GetName() or "nil") .. ").")
+    ns:Print("Bears_Decor_Tool window shown (shown=" .. tostring(frame:IsShown()) .. ", visible=" .. tostring(frame:IsVisible()) .. ", alpha=" .. tostring(frame:GetAlpha()) .. ", parent=" .. tostring(frame:GetParent() and frame:GetParent():GetName() or "nil") .. ").")
 end
 
 function UI:Hide()
@@ -226,10 +255,18 @@ function UI:UpdateStatus()
 end
 
 function UI:UpdateSteps()
-    if not self.frame or not self.stepsLabel then
+    if not self.frame then
         return
     end
-    self.stepsLabel:SetText(string.format(L["Steps: %s"], tostring((ns.db and ns.db.steps) or 5)))
+    local function setField(field, dbKey)
+        if field then
+            field:SetText(tostring((ns.db and ns.db[dbKey]) or 5))
+        end
+    end
+    setField(self.stepFieldLeftRight, "stepLeftRight")
+    setField(self.stepFieldUpDown, "stepUpDown")
+    setField(self.stepFieldWheel, "stepWheel")
+    setField(self.stepFieldOther, "steps")
 end
 
 function UI:Nudge(key)
@@ -240,7 +277,7 @@ function UI:Nudge(key)
         return
     end
 
-    local steps = (ns.db and ns.db.steps) or 1
+    local steps = ns:GetStepValue(key)
     ns.Pulse:Start(incrementType, steps)
     self:UpdateStatus()
 end

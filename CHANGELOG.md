@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added per-direction step fields (left/right, up/down, wheel, other) to the panel.
+- Nudge keybinds and buttons now use the matching per-direction step value.
+
 ## 0.1.0
 
 - Initial Bears_Decor_Tool skeleton for retail Midnight 12.1.5+.
