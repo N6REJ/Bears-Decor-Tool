@@ -1,12 +1,18 @@
-# JetBrains
-/.idea
+# Packaging output
+dist/
+*.zip
 
-# Visual Studio
+# Editors
 .vscode/
+.idea/
 .vs/
 
-# Ace3 external libraries
-/Libs/
+# OS files
+.DS_Store
+Thumbs.db
 
-# Packager output
-/.release
+# Logs
+*.log
+
+# Local game AddOns junction
+/AddOns/
