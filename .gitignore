@@ -16,3 +16,6 @@ Thumbs.db
 
 # Local game AddOns junction
 /AddOns/
+
+# Ace3/LDB external libraries (fetched by the packager at release time)
+/Libs/

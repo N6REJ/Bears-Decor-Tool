@@ -2,6 +2,7 @@
 ## Title: Bears Decor Tool
 ## Notes: Micro-nudge housing decor with the Expert Decor precision API.
 ## Author: Bear (N6REJ)
+## X-Curse-Project-ID: 1780871
 ## Version: @project-version@
 ## SavedVariables: BearsDecorToolDB
 ## IconTexture: Interface\AddOns\Bears_Decor_Tool\nudge.tga

@@ -1,0 +1,31 @@
+package-as: Bears_Decor_Tool
+
+manual-changelog:
+    filename: CHANGELOG.md
+    markup-type: markdown
+
+ignore:
+    - README.md
+    - .github
+    - .packager
+    - .release
+    - .gitignore
+    - .gitattributes
+    - .vscode/
+    - .idea
+    - AGENTS.md
+    - docs
+    - scripts
+    - stats
+
+enable-nolib-creation: no
+
+tools-used:
+    - libdatabroker-1-1
+
+externals:
+    Libs/LibStub: https://repos.wowace.com/wow/ace3/trunk/LibStub/
+    Libs/CallbackHandler-1.0: https://repos.wowace.com/wow/ace3/trunk/CallbackHandler-1.0
+    Libs/AceLocale-3.0: https://repos.wowace.com/wow/ace3/trunk/AceLocale-3.0
+    Libs/LibDataBroker-1.1: https://repos.wowace.com/wow/libdatabroker-1-1
+    Libs/LibDBIcon-1.0: https://repos.wowace.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
