@@ -53,9 +53,9 @@ Charts are generated on the first run. Customize them freely; only the data tabl
 | Update mode | daily |
 | Period | week `2026-W45`, month `Nov 2026`, year `2026` |
 | Window | 365 days |
-| Snapshots | 5 |
+| Snapshots | 6 |
 | Partial | week, month, year |
-| Generated at | `2026-11-07T10:58:04.650Z` |
+| Generated at | `2026-11-08T11:11:49.159Z` |
 
 Source data: [`stats/downloads.json`](https://raw.githubusercontent.com/N6REJ/Bears-Decor-Tool/main/stats/downloads.json)
 
