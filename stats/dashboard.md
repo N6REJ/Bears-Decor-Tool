@@ -42,7 +42,7 @@ Charts are generated on the first run. Customize them freely; only the data tabl
 |---|---|
 | Total | 12 |
 | Day | 0 |
-| Week | 10 (partial) |
+| Week | 0 |
 | Month | 10 (partial) |
 | Year | 10 (partial) |
 
@@ -51,11 +51,11 @@ Charts are generated on the first run. Customize them freely; only the data tabl
 | Repository | `N6REJ/Bears-Decor-Tool` |
 | CurseForge mod id | `1780871` |
 | Update mode | daily |
-| Period | week `2026-W45`, month `Nov 2026`, year `2026` |
+| Period | week `2026-W46`, month `Nov 2026`, year `2026` |
 | Window | 365 days |
-| Snapshots | 6 |
-| Partial | week, month, year |
-| Generated at | `2026-11-08T11:11:49.159Z` |
+| Snapshots | 7 |
+| Partial | month, year |
+| Generated at | `2026-11-09T12:43:03.744Z` |
 
 Source data: [`stats/downloads.json`](https://raw.githubusercontent.com/N6REJ/Bears-Decor-Tool/main/stats/downloads.json)
 
