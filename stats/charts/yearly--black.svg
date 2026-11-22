@@ -19,7 +19,7 @@
   </defs>
   <rect class="bg" x="0" y="0" width="1000" height="360" rx="16" />
   <text class="title" x="64" y="34">N6REJ/Bears-Decor-Tool downloads</text>
-  <text class="sub" x="64" y="352">Generated 2026-11-21</text>
+  <text class="sub" x="64" y="352">Generated 2026-11-22</text>
   <line x1="64" y1="52.00" x2="976" y2="52.00" class="grid"/>
   <text x="56" y="56.00" text-anchor="end" class="axis">13</text>
   <line x1="64" y1="94.00" x2="976" y2="94.00" class="grid"/>
@@ -34,16 +34,17 @@
   <text x="56" y="266.00" text-anchor="end" class="axis">2</text>
   <line x1="64" y1="304.00" x2="976" y2="304.00" class="grid"/>
   <text x="56" y="308.00" text-anchor="end" class="axis">0</text>
-  <path d="M 64.00 304 L 64.00 304.00 L 114.67 226.46 L 165.33 129.54 L 216.00 110.15 L 266.67 110.15 L 317.33 110.15 L 368.00 110.15 L 418.67 110.15 L 469.33 90.77 L 520.00 90.77 L 570.67 90.77 L 621.33 71.38 L 672.00 71.38 L 722.67 71.38 L 773.33 71.38 L 824.00 71.38 L 874.67 52.00 L 925.33 52.00 L 976.00 52.00 L 976.00 304 Z" fill="url(#fill-yearly-black)"/>
-  <polyline class="line" points="64.00,304.00 114.67,226.46 165.33,129.54 216.00,110.15 266.67,110.15 317.33,110.15 368.00,110.15 418.67,110.15 469.33,90.77 520.00,90.77 570.67,90.77 621.33,71.38 672.00,71.38 722.67,71.38 773.33,71.38 824.00,71.38 874.67,52.00 925.33,52.00 976.00,52.00"/>
+  <path d="M 64.00 304 L 64.00 304.00 L 112.00 226.46 L 160.00 129.54 L 208.00 110.15 L 256.00 110.15 L 304.00 110.15 L 352.00 110.15 L 400.00 110.15 L 448.00 90.77 L 496.00 90.77 L 544.00 90.77 L 592.00 71.38 L 640.00 71.38 L 688.00 71.38 L 736.00 71.38 L 784.00 71.38 L 832.00 52.00 L 880.00 52.00 L 928.00 52.00 L 976.00 52.00 L 976.00 304 Z" fill="url(#fill-yearly-black)"/>
+  <polyline class="line" points="64.00,304.00 112.00,226.46 160.00,129.54 208.00,110.15 256.00,110.15 304.00,110.15 352.00,110.15 400.00,110.15 448.00,90.77 496.00,90.77 544.00,90.77 592.00,71.38 640.00,71.38 688.00,71.38 736.00,71.38 784.00,71.38 832.00,52.00 880.00,52.00 928.00,52.00 976.00,52.00"/>
   <circle class="dot" cx="976.00" cy="52.00" r="4.5"/>
   
   <text class="axis" x="64.00" y="336" text-anchor="start">2026-11-03</text>
-  <text class="axis" x="216.00" y="336" text-anchor="middle">2026-11-06</text>
-  <text class="axis" x="368.00" y="336" text-anchor="middle">2026-11-09</text>
-  <text class="axis" x="520.00" y="336" text-anchor="middle">2026-11-12</text>
-  <text class="axis" x="672.00" y="336" text-anchor="middle">2026-11-15</text>
-  <text class="axis" x="824.00" y="336" text-anchor="middle">2026-11-18</text>
-  <text class="axis" x="976.00" y="336" text-anchor="end">2026-11-21</text>
+  <text class="axis" x="208.00" y="336" text-anchor="middle">2026-11-06</text>
+  <text class="axis" x="352.00" y="336" text-anchor="middle">2026-11-09</text>
+  <text class="axis" x="496.00" y="336" text-anchor="middle">2026-11-12</text>
+  <text class="axis" x="640.00" y="336" text-anchor="middle">2026-11-15</text>
+  <text class="axis" x="784.00" y="336" text-anchor="middle">2026-11-18</text>
+  <text class="axis" x="928.00" y="336" text-anchor="middle">2026-11-21</text>
+  <text class="axis" x="976.00" y="336" text-anchor="end">2026-11-22</text>
   <text class="latest" x="976" y="34" text-anchor="end">Latest year: 13</text>
 </svg>
