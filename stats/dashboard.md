@@ -40,11 +40,11 @@ Charts are generated on the first run. Customize them freely; only the data tabl
 
 | Metric | Value |
 |---|---|
-| Total | 16 |
-| Day | 0 |
-| Week | 1 |
-| Month | 14 (partial) |
-| Year | 14 (partial) |
+| Total | 17 |
+| Day | 1 |
+| Week | 2 |
+| Month | 15 (partial) |
+| Year | 15 (partial) |
 
 | Field | Value |
 |---|---|
@@ -53,9 +53,9 @@ Charts are generated on the first run. Customize them freely; only the data tabl
 | Update mode | daily |
 | Period | week `2026-W48`, month `Nov 2026`, year `2026` |
 | Window | 365 days |
-| Snapshots | 25 |
+| Snapshots | 26 |
 | Partial | month, year |
-| Generated at | `2026-11-27T13:40:26.434Z` |
+| Generated at | `2026-11-28T12:51:05.017Z` |
 
 Source data: [`stats/downloads.json`](https://raw.githubusercontent.com/N6REJ/Bears-Decor-Tool/main/stats/downloads.json)
 
